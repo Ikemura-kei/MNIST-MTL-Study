@@ -1,0 +1,7 @@
+*.pt
+Toy-MNIST/logs/
+__pycache__/
+*/data/MNIST/processed/
+*/data/MNIST/raw/
+PKG-INFO
+LibMTL/LibMTL.egg-info/
