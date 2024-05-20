@@ -1,6 +1,9 @@
 from easydict import EasyDict
 import yaml
 import os
+import model.mtl_model
+import torch.nn as nn
+import model
 
 def load_cfg(args) -> EasyDict:
     """Load configuration as an EasyDict object
@@ -40,3 +43,15 @@ def recursive_dict_to_easydict(dictionary: dict, easydict: EasyDict) -> EasyDict
             easydict[key] = value
 
     return easydict
+
+def get_model(cfg: EasyDict) -> nn.Module:
+    backbone = getattr(model, "{}Backbone".format(cfg.MODEL_CFG.BACKBONE_CFG.TYPE))(**cfg.MODEL_CFG.BACKBONE_CFG.PARAMS)
+
+    heads = nn.ModuleDict()
+    for task in cfg.TASK_CFG.TASKS:
+        head_cfg = getattr(cfg.MODEL_CFG.HEADS_CFG, task)
+        head = getattr(model, "{}Backbone".format(head_cfg.TYPE))(**head_cfg.PARAMS)
+        heads[task] = head
+
+    net = model.mtl_model.MTLModel(backbone, heads)
+    return net

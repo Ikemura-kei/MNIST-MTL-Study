@@ -8,7 +8,7 @@ import logging
 import time
 from datetime import datetime
 
-from utils.config_utils import load_cfg
+from utils.config_utils import load_cfg, get_model
 
 def main():
     parser = ArgumentParser()
@@ -19,19 +19,26 @@ def main():
     parser.add_argument('--local_rank', type=int, default=0, help='Node rank for distributed training, can be passed from PyTorch distributed launcher.')
     parser.add_argument('--log_dir', type=str, default='./logs', help='The parent folder to contain all experiment logs.')
 
+    # -- load configurations --
     args = parser.parse_args()
     cfg = load_cfg(args)
 
+    # -- create logging directory --
     data_time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     output_dir = os.path.join(args.log_dir, args.cfg_file.split('/')[-1].replace('.yaml', ''), data_time)
     os.makedirs(output_dir, exist_ok=True)
 
+    # -- create logger --
     logger = logging.getLogger(__name__)
     logger.addHandler(logging.StreamHandler(sys.stdout))
     log_file = os.path.join(output_dir, 'log.txt')
     logging.basicConfig(filename=log_file, level=logging.INFO)
-
+    logger.info("=== Configurations ===")
     logger.info(json.dumps(cfg, indent=4))
+
+    # -- create model --
+    model = get_model(cfg)
+    logger.info(model)
 
 if __name__ == "__main__":
     main()

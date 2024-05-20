@@ -20,9 +20,22 @@ TASK_CFG:
     METRICS: []
 
 MODEL_CFG:
-  BACKBONE: Linear
+  BACKBONE_CFG: 
+    TYPE: Linear
+    PARAMS: {"in_dim": 784, "out_dim": 512}
 
-  HEADS: Linear
+  HEADS_CFG: 
+    CLASSIFICATION_CLE: 
+      TYPE: Linear
+      PARAMS: {"in_dim": 512, "out_dim": 10}
+
+    CLASSIFICATION_MAE: 
+      TYPE: Linear
+      PARAMS: {"in_dim": 512, "out_dim": 10}
+
+    CLASSIFICATION_HUBER: 
+      TYPE: Linear
+      PARAMS: {"in_dim": 512, "out_dim": 10}
 
 SCHEDULER_CFG:
   SCHEDULER: MultiStep
