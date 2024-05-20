@@ -1,6 +1,6 @@
 folder="logs"
 mkdir -p $folder
-moo_method=EW
+moo_method=FixedWeights
 seed=0
 # EW, MGDA, MoDo params
 lr="1e-1"

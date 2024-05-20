@@ -1,0 +1,30 @@
+MTL_CONFIG:
+    ANA:
+      LOSS_AVERAGING_WINDO_SIZE: 35
+
+      METRICS: ['inv-train-rate', 'improve-ratio', 'loss-descend-rate',
+                'grad-magnitude', 'loss-variance', 'grad-cos-sim',
+                'grad-mag-ratio', 'grad-mag-sim', 'condition-number',
+                'loss-scale', 'loss-scale-ratio', 'avg-grad-mag',
+                'rel-grad-mag', 'rel-inv-train-rate', 'rel-loss-descend-rate',
+                'rel-rel-grad-mag', 'rel-loss-scale',]
+      
+      DO_NOT_LOG: []
+
+      GRAD_COS_SIM:
+        DEBUG: False
+
+      INV_TRAIN_RATE:
+        INITIAL_ITER: 25
+
+      IMPROVE_RATIO:
+        STEP_SIZE: 1
+
+      LOSS_DESCEND_RATE:
+        STEP_SIZE: 1
+
+      LOSS_VARIANCE:
+        WINDOW: 60
+
+      REL_LOSS_DESCEND_RATE:
+        TEMPERATURE: 1

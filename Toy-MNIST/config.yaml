@@ -1,0 +1,80 @@
+MTL_CONFIG:
+    ANA:
+      LOSS_AVERAGING_WINDO_SIZE: 35
+
+      METRICS: ['inv-train-rate', 'improve-ratio', 'loss-descend-rate',
+                'grad-magnitude', 'loss-variance', 'grad-cos-sim',
+                'grad-mag-ratio', 'grad-mag-sim', 'condition-number',
+                'loss-scale', 'loss-scale-ratio', 'avg-grad-mag',
+                'rel-grad-mag', 'rel-inv-train-rate', 'rel-loss-descend-rate',
+                'rel-rel-grad-mag', 'rel-loss-scale',]
+      
+      DO_NOT_LOG: []
+
+      GRAD_COS_SIM:
+        DEBUG: False
+
+      INV_TRAIN_RATE:
+        INITIAL_ITER: 25
+
+      IMPROVE_RATIO:
+        STEP_SIZE: 1
+
+      LOSS_DESCEND_RATE:
+        STEP_SIZE: 1
+
+      LOSS_VARIANCE:
+        WINDOW: 60
+
+      REL_LOSS_DESCEND_RATE:
+        TEMPERATURE: 1
+
+TASKS: ['CLASSIFICATION', 'CLASSIFICATION2', 'CLASSIFICATION3']
+
+CLASSIFICATION:
+    OUTPUT_DIM: 10
+    LOSS_FN: ['CrossEntropyLoss']
+
+    CrossEntropyLoss:
+        USE_PYTORCH: True
+        PARAMS: {}
+
+CLASSIFICATION2:
+    OUTPUT_DIM: 10
+    LOSS_FN: ['MSELoss']
+
+    MSELoss:
+        USE_PYTORCH: True
+        PARAMS: {}
+
+CLASSIFICATION3:
+    OUTPUT_DIM: 10
+    LOSS_FN: ['HuberLoss']
+
+    HuberLoss:
+        USE_PYTORCH: True
+        PARAMS: {}
+
+NUM_BACKGROUND_PIX_PRED:
+    OUTPUT_DIM: 1
+    LOSS_FN: ['L1Loss']
+
+    L1Loss:
+        USE_PYTORCH: True
+        PARAMS: {}
+
+# CLASSIFICATION:
+#     OUTPUT_DIM: 10
+#     LOSS_FN: ['CrossEntropyLoss', 'MSELoss', 'HuberLoss']
+
+#     CrossEntropyLoss:
+#         USE_PYTORCH: True
+#         PARAMS: {}
+
+#     MSELoss:
+#         USE_PYTORCH: True
+#         PARAMS: {}
+
+#     HuberLoss:
+#         USE_PYTORCH: True
+#         PARAMS: {}

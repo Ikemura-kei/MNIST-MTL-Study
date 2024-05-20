@@ -19,6 +19,12 @@ def grad_ew(grad_list, **kwargs):
 
     return grad_
 
+def grad_fixed_weights(grad_list, **kwargs):
+    weights = kwargs['FixedWeights']['weights']
+    grad_ = torch.sum(grad_list * weights.to(grad_list.device)[:,None], dim=0)
+
+    return grad_
+
 # MGDA
 def grad_mgda(grad_list, **kwargs):
     lambd = find_min_norm_element(grad_list)
