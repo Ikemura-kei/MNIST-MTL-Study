@@ -5,6 +5,8 @@ import torch.nn as nn
 import model.mtl_model
 import model
 import loss
+import optimizer
+import scheduler
 
 def load_cfg(args) -> EasyDict:
     """Load configuration as an EasyDict object
@@ -66,3 +68,11 @@ def get_losses(cfg: EasyDict) -> nn.ModuleDict:
         losses[task] = loss_fn
     
     return losses
+
+def get_optim_and_sched(cfg, model):
+    params = model.parameters()
+
+    optim = getattr(optimizer, cfg.OPTIM_CFG.OPTIM)(params, **cfg.OPTIM_CFG.PARAMS)
+    sched = getattr(scheduler, cfg.SCHEDULER_CFG.SCHEDULER)(optim, **cfg.SCHEDULER_CFG.PARAMS)
+
+    return optim, sched

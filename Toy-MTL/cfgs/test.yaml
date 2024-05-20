@@ -4,7 +4,8 @@ DATASET_CFG:
   DATASET: MNIST
 
 OPTIM_CFG:
-  OPTIM: adam
+  OPTIM: Adam
+  PARAMS: {"lr": 0.005, "betas": [0.9, 0.999], "eps": 1.e-08, "weight_decay": 0}
 
 TASK_CFG:
   TASKS: ['CLASSIFICATION_CLE', 'CLASSIFICATION_MAE', 'CLASSIFICATION_HUBER']
@@ -43,4 +44,5 @@ MODEL_CFG:
       PARAMS: {"in_dim": 512, "out_dim": 10}
 
 SCHEDULER_CFG:
-  SCHEDULER: MultiStep
+  SCHEDULER: MultiStepLR
+  PARAMS: {"milestones": [500, 1500, 3000, 4000, 5000]}

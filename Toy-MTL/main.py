@@ -11,7 +11,7 @@ import time
 from datetime import datetime as dt
 import datetime
 
-from utils.config_utils import load_cfg, get_model, get_losses
+from utils.config_utils import load_cfg, get_model, get_losses, get_optim_and_sched
 
 def set_seed(seed):
     import random
@@ -63,8 +63,13 @@ def main():
                                                       output_device=args.local_rank, find_unused_parameters=False)
     
     # -- create loss functions --
-    losses = get_losses(cfg)
+    losses = get_losses(cfg).cuda()
     logger.info(losses)
+
+    # -- create optimizer and scheduler --
+    optimizer, scheduler = get_optim_and_sched(cfg, model)
+    logger.info(optimizer)
+    logger.info(scheduler)
 
 if __name__ == "__main__":
     main()
