@@ -11,14 +11,17 @@ TASK_CFG:
 
   CLASSIFICATION_CLE:
     LOSS: CrossEntropyLoss
+    PARAMS: {}
     METRICS: []
 
   CLASSIFICATION_MAE:
     LOSS: MSELoss
+    PARAMS: {}
     METRICS: []
   
   CLASSIFICATION_HUBER:
     LOSS: HuberLoss
+    PARAMS: {}
     METRICS: []
 
 MODEL_CFG:

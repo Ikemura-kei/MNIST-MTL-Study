@@ -1,9 +1,10 @@
 from easydict import EasyDict
 import yaml
 import os
-import model.mtl_model
 import torch.nn as nn
+import model.mtl_model
 import model
+import loss
 
 def load_cfg(args) -> EasyDict:
     """Load configuration as an EasyDict object
@@ -55,3 +56,13 @@ def get_model(cfg: EasyDict) -> nn.Module:
 
     net = model.mtl_model.MTLModel(backbone, heads)
     return net
+
+def get_losses(cfg: EasyDict) -> nn.ModuleDict:
+    task_cfg = cfg.TASK_CFG
+
+    losses = nn.ModuleDict()
+    for task in task_cfg.TASKS:
+        loss_fn = getattr(loss, getattr(task_cfg, task).LOSS)(**getattr(task_cfg, task).PARAMS)
+        losses[task] = loss_fn
+    
+    return losses

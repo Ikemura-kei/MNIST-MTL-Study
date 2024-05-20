@@ -11,7 +11,7 @@ import time
 from datetime import datetime as dt
 import datetime
 
-from utils.config_utils import load_cfg, get_model
+from utils.config_utils import load_cfg, get_model, get_losses
 
 def set_seed(seed):
     import random
@@ -40,6 +40,7 @@ def main():
 
     # -- create logging directory --
     data_time = dt.now().strftime("%Y-%m-%d_%H:%M:%S")
+    # -- we set the output directory to be "<log_dir>/<cfg>/<date_time>" where <cfg> is the name of the config file without .yaml extension --
     output_dir = os.path.join(args.log_dir, args.cfg_file.split('/')[-1].replace('.yaml', ''), data_time)
     os.makedirs(output_dir, exist_ok=True)
 
@@ -61,6 +62,9 @@ def main():
     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], \
                                                       output_device=args.local_rank, find_unused_parameters=False)
     
+    # -- create loss functions --
+    losses = get_losses(cfg)
+    logger.info(losses)
 
 if __name__ == "__main__":
     main()
