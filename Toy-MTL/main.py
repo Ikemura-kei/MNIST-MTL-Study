@@ -11,7 +11,7 @@ import time
 from datetime import datetime as dt
 import datetime
 
-from utils.config_utils import load_cfg, get_model, get_losses, get_optim_and_sched
+from utils.config_utils import load_cfg, get_model, get_losses, get_optim_and_sched, get_eval_meter
 
 def set_seed(seed):
     import random
@@ -70,6 +70,10 @@ def main():
     optimizer, scheduler = get_optim_and_sched(cfg, model)
     logger.info(optimizer)
     logger.info(scheduler)
+
+    # -- create evaluation meters --
+    eval_meter = get_eval_meter(cfg)
+    logger.info(eval_meter)
 
 if __name__ == "__main__":
     main()

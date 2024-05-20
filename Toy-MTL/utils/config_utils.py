@@ -7,6 +7,7 @@ import model
 import loss
 import optimizer
 import scheduler
+import evaluation
 
 def load_cfg(args) -> EasyDict:
     """Load configuration as an EasyDict object
@@ -76,3 +77,15 @@ def get_optim_and_sched(cfg, model):
     sched = getattr(scheduler, cfg.SCHEDULER_CFG.SCHEDULER)(optim, **cfg.SCHEDULER_CFG.PARAMS)
 
     return optim, sched
+
+def get_eval_meter(cfg) -> nn.ModuleList:
+    task_cfg = cfg.TASK_CFG
+
+    eval_meter = nn.ModuleDict()
+    for task in task_cfg.TASKS:
+        eval_meter[task] = nn.ModuleList([])
+        metric_names = getattr(task_cfg, task).METRICS
+        for metric in metric_names:
+            eval_meter[task].append(getattr(evaluation, metric)())
+
+    return eval_meter
