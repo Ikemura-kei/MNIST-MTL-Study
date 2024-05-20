@@ -1,3 +1,5 @@
+SEED: 0
+
 DATASET_CFG: 
   DATASET: MNIST
 
