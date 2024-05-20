@@ -2,15 +2,18 @@ import torch
 import torch.nn as nn
 
 class Accuracy(nn.Module):
-    def __init__(self):
+    def __init__(self, gt_is_logit=False):
         super().__init__()
+        self.gt_is_logit = gt_is_logit
 
     def forward(self, pred: torch.Tensor, gt: torch.Tensor) -> float:
         """Compute accuracy
 
         Args:
             pred (torch.Tensor): tensor of shape (N, C), where C is the number of classes, typically is the class probabilities or logits
-            gt (torch.Tensor): tensor of shape (N, ), each is an integer representing the class index
+            gt (torch.Tensor): 
+                self.gt_is_logit=False: tensor of shape (N, ), each is an integer representing the class index
+                self.gt_is_logit=True: tensor of shape (N, C), each is an onehot encoding of the class label
 
         Returns:
             float: accuracy
@@ -18,6 +21,10 @@ class Accuracy(nn.Module):
         N = gt.shape[0]
 
         pred_label = torch.argmax(pred, dim=1) # (N,)
+        
+        if self.gt_is_logit:
+            gt = torch.argmax(gt, dim=1) # (N,)
+            
         acc = torch.sum(torch.eq(pred_label, gt)) / N
         
         return acc

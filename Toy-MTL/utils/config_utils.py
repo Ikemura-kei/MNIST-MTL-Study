@@ -1,13 +1,18 @@
 from easydict import EasyDict
 import yaml
 import os
+import torch
 import torch.nn as nn
+import torchvision
+from copy import deepcopy
 import model.mtl_model
 import model
 import loss
 import optimizer
 import scheduler
 import evaluation
+import dataset
+from dataset import transforms
 
 def load_cfg(args) -> EasyDict:
     """Load configuration as an EasyDict object
@@ -54,7 +59,7 @@ def get_model(cfg: EasyDict) -> nn.Module:
     heads = nn.ModuleDict()
     for task in cfg.TASK_CFG.TASKS:
         head_cfg = getattr(cfg.MODEL_CFG.HEADS_CFG, task)
-        head = getattr(model, "{}Backbone".format(head_cfg.TYPE))(**head_cfg.PARAMS)
+        head = getattr(model, "{}Head".format(head_cfg.TYPE))(**head_cfg.PARAMS)
         heads[task] = head
 
     net = model.mtl_model.MTLModel(backbone, heads)
@@ -70,7 +75,7 @@ def get_losses(cfg: EasyDict) -> nn.ModuleDict:
     
     return losses
 
-def get_optim_and_sched(cfg, model):
+def get_optim_and_sched(cfg: EasyDict, model: nn.Module):
     params = model.parameters()
 
     optim = getattr(optimizer, cfg.OPTIM_CFG.OPTIM)(params, **cfg.OPTIM_CFG.PARAMS)
@@ -78,14 +83,33 @@ def get_optim_and_sched(cfg, model):
 
     return optim, sched
 
-def get_eval_meter(cfg) -> nn.ModuleList:
+def get_eval_meter(cfg: EasyDict) -> nn.ModuleList:
     task_cfg = cfg.TASK_CFG
 
     eval_meter = nn.ModuleDict()
     for task in task_cfg.TASKS:
         eval_meter[task] = nn.ModuleList([])
-        metric_names = getattr(task_cfg, task).METRICS
-        for metric in metric_names:
-            eval_meter[task].append(getattr(evaluation, metric)())
+        metrics = getattr(task_cfg, task).METRICS
+        for metric in metrics.keys():
+            eval_meter[task].append(getattr(evaluation, metric)(**metrics[metric]))
 
     return eval_meter
+
+def get_dataset(cfg: EasyDict, mode: str) -> torch.utils.data.Dataset:
+    the_transforms = None
+
+    if hasattr(cfg.DATASET_CFG.PARAMS, "transform"):
+        tf_list = []
+        for transform, params in cfg.DATASET_CFG.PARAMS.transform.items():
+            tf_list.append(getattr(transforms, transform)(**params))
+
+        the_transforms = torchvision.transforms.Compose(tf_list)
+
+        cfg_cpy = deepcopy(cfg)
+        cfg_cpy.DATASET_CFG.PARAMS.transform = the_transforms
+
+        d = getattr(dataset, cfg_cpy.DATASET_CFG.DATASET)(cfg_cpy, mode, **cfg_cpy.DATASET_CFG.PARAMS)
+    else:
+        d = getattr(dataset, cfg.DATASET_CFG.DATASET)(cfg, mode, **cfg.DATASET_CFG.PARAMS)
+
+    return d

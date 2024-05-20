@@ -21,7 +21,7 @@ class MTLModel(nn.Module):
         """
         output_dict = {}
 
-        input_data = input_dict['input_data']
+        input_data = input_dict['input_data'].view(input_dict['input_data'].shape[0], -1) # (N, H*W)
         shared_feat = self.backbone(input_data)
 
         output_dict['shared_feat'] = shared_feat

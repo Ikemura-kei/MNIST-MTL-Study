@@ -1,0 +1,1 @@
+from .mnist_mtl import MNISTMTL
