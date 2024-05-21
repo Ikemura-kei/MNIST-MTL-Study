@@ -13,6 +13,7 @@ import json
 import logging
 from datetime import datetime as dt
 import datetime
+import wandb
 
 from utils.config_utils import (
     load_cfg,
@@ -170,12 +171,39 @@ def main():
     accumulated_iter = 0
     # -- load checkpoint if needed --
 
+    # -- initialize wandb --
+    wandb.login()
+    run = wandb.init(
+        entity="ikemura_kei",
+        project="TOY_MTL",
+        name=args.cfg_file.split("/")[-1].replace(".yaml", "") + "_" + data_time,
+        dir=output_dir,
+        mode="online",
+        config=cfg,
+    )
+
     # -- start training --
     mtl_dict = {}
+    required_keys = [
+        "avg_losses",
+        "initial_gradient",
+        "initial_gradient_norm",
+        "ori_gradients",
+        "new_gradients",
+        "losses",
+        "updated_losses",
+    ]
+    for key in required_keys:
+        mtl_dict[key] = None
+
     for epoch in range(start_epoch, cfg.TRAIN_CFG.EPOCH):
         train_sampler.set_epoch(epoch)
 
-        logger.info("Epoch: {}/{}, lr={}".format(epoch, cfg.TRAIN_CFG.EPOCH, optimizer.param_groups[0]['lr']))
+        logger.info(
+            "Epoch: {}/{}, lr={}".format(
+                epoch, cfg.TRAIN_CFG.EPOCH, optimizer.param_groups[0]["lr"]
+            )
+        )
 
         accumulated_iter, result_dict, mtl_dict = train_one_epoch(
             model,
@@ -186,14 +214,28 @@ def main():
             mtl_algo,
             epoch,
             mtl_dict,
+            cfg,
+            args.local_rank,
+            mtl_metrics,
         )
 
         scheduler.step()
-        
-        if args.local_rank == 0 and epoch % cfg.TRAIN_CFG.EVAL_FREQ == 0 or epoch == (cfg.TRAIN_CFG.EPOCH-1):
+
+        if (
+            args.local_rank == 0
+            and epoch % cfg.TRAIN_CFG.EVAL_FREQ == 0
+            or epoch == (cfg.TRAIN_CFG.EPOCH - 1)
+        ):
             result_dict = validation(model, val_dataloader, eval_meter)
             logger.info("Validation: {}".format(result_dict))
-
+            
+            log_dict = {}
+            for k, v in result_dict.items():
+                for i, met_v in enumerate(v):
+                    met_name = type(eval_meter[k][i]).__name__
+                    log_dict["val/{}/{}".format(k, met_name)] = float(met_v)
+                    
+            wandb.log({'epoch': epoch, 'iteration': accumulated_iter, **log_dict})
 
 if __name__ == "__main__":
     main()

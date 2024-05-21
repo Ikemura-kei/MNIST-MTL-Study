@@ -1,0 +1,83 @@
+SEED: 0
+
+DATASET_CFG: 
+  DATASET: MNISTMTL
+  BATCH_SIZE: 64
+  PARAMS: {"root": './data', "transform": {"ToTensor": {}, "Normalize": {"mean": [0.0], "std": [0.5]}}}
+
+OPTIM_CFG:
+  OPTIM: SGD
+  PARAMS: {"lr": 0.02}
+
+TASK_CFG:
+  TASKS: ['CLASSIFICATION_CLE', 'CLASSIFICATION_MAE', 'CLASSIFICATION_HUBER']
+
+  CLASSIFICATION_CLE:
+    LOSS: CrossEntropyLoss
+    PARAMS: {}
+    METRICS: {'Accuracy': {}}
+
+  CLASSIFICATION_MAE:
+    LOSS: MSELoss
+    PARAMS: {}
+    METRICS: {'Accuracy': {'gt_is_logit': True}}
+  
+  CLASSIFICATION_HUBER:
+    LOSS: HuberLoss
+    PARAMS: {}
+    METRICS: {'Accuracy': {'gt_is_logit': True}}
+
+MODEL_CFG:
+  BACKBONE_CFG: 
+    TYPE: Linear
+    PARAMS: {"in_dim": 784, "out_dim": 512}
+
+  HEADS_CFG: 
+    CLASSIFICATION_CLE: 
+      TYPE: Linear
+      PARAMS: {"in_dim": 512, "out_dim": 10}
+
+    CLASSIFICATION_MAE: 
+      TYPE: LinearSoftMax
+      PARAMS: {"in_dim": 512, "out_dim": 10}
+
+    CLASSIFICATION_HUBER: 
+      TYPE: LinearSoftMax
+      PARAMS: {"in_dim": 512, "out_dim": 10}
+
+SCHEDULER_CFG:
+  SCHEDULER: MultiStepLR
+  PARAMS: {"milestones": [300]}
+
+TRAIN_CFG:
+  EPOCH: 400
+  EVAL_FREQ: 5
+
+MTL_CONFIG:
+  ALGO: ew
+  WEIGHTS: {'CLASSIFICATION_CLE': 0.3333, 'CLASSIFICATION_MAE': 0.3333, 'CLASSIFICATION_HUBER': 0.3333}
+
+  ANA:
+    LOSS_AVERAGING_WINDO_SIZE: 35
+
+    METRICS: []
+    
+    DO_NOT_LOG: []
+
+    GRAD_COS_SIM:
+      DEBUG: False
+
+    INV_TRAIN_RATE:
+      INITIAL_ITER: 25
+
+    IMPROVE_RATIO:
+      STEP_SIZE: 1
+
+    LOSS_DESCEND_RATE:
+      STEP_SIZE: 1
+
+    LOSS_VARIANCE:
+      WINDOW: 60
+
+    REL_LOSS_DESCEND_RATE:
+      TEMPERATURE: 1
