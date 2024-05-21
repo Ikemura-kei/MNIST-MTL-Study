@@ -5,3 +5,4 @@ __pycache__/
 */data/MNIST/raw/
 PKG-INFO
 LibMTL/LibMTL.egg-info/
+logs/
